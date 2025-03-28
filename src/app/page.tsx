@@ -1,103 +1,120 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // State to store time in seconds
+  const [time, setTime] = useState(0);
+  // State to track if timer is running
+  const [isRunning, setIsRunning] = useState(false);
+  // State to store input values
+  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
+  const [seconds, setSeconds] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Update time every second when timer is running
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (isRunning && time > 0) {
+      interval = setInterval(() => {
+        setTime((prevTime) => {
+          const newTime = prevTime - 1;
+          // Update input fields with new time
+          setHours(Math.floor(newTime / 3600).toString());
+          setMinutes(Math.floor((newTime % 3600) / 60).toString());
+          setSeconds((newTime % 60).toString());
+          return newTime;
+        });
+      }, 1000);
+    } else if (time === 0) {
+      setIsRunning(false);
+      setHours("");
+      setMinutes("");
+      setSeconds("");
+      window.alert("Time isOut!");
+    }
+
+    return () => clearInterval(interval);
+  }, [isRunning, time]);
+
+  // Handle start
+  const startTimer = () => {
+    // Convert input values to total seconds
+    const totalSeconds =
+      parseInt(hours || "0") * 3600 +
+      parseInt(minutes || "0") * 60 +
+      parseInt(seconds || "0");
+    if (totalSeconds > 0) {
+      setTime(totalSeconds);
+      setIsRunning(true);
+    }
+  };
+
+  // Handle pause
+  const pauseTimer = () => {
+    setIsRunning(false);
+  };
+
+  // Handle reset
+  const resetTimer = () => {
+    setTime(0);
+    setIsRunning(false);
+    setHours("");
+    setMinutes("");
+    setSeconds("");
+  };
+
+  return (
+    <div className="container">
+      {/* Timer */}
+      <div className="tab-content active" id="timer">
+        <div className="display">
+          <input
+            type="number"
+            id="hours"
+            placeholder="00"
+            min="0"
+            max="23"
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+            disabled={isRunning}
+          />
+          <span>:</span>
+          <input
+            type="number"
+            id="minutes"
+            placeholder="00"
+            min="0"
+            max="59"
+            value={minutes}
+            onChange={(e) => setMinutes(e.target.value)}
+            disabled={isRunning}
+          />
+          <span>:</span>
+          <input
+            type="number"
+            id="seconds"
+            placeholder="00"
+            min="0"
+            max="59"
+            value={seconds}
+            onChange={(e) => setSeconds(e.target.value)}
+            disabled={isRunning}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="controls">
+          <button id="startTimer" onClick={startTimer}>
+            Start
+          </button>
+          <button id="pauseTimer" onClick={pauseTimer}>
+            Pause
+          </button>
+          <button id="resetTimer" onClick={resetTimer}>
+            Reset
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
